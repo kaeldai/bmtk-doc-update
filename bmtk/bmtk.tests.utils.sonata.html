@@ -1,0 +1,632 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bmtk.tests.utils.sonata package &#8212; Brain Modeling Toolkit 1.1.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=1f74a8a3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=58fbf978"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'bmtk/bmtk.tests.utils.sonata';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/allen-logo.svg" class="logo__image only-light" alt="Brain Modeling Toolkit 1.1.1 documentation - Home"/>
+    <script>document.write(`<img src="../_static/allen-logo.svg" class="logo__image only-dark" alt="Brain Modeling Toolkit 1.1.1 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../news_and_events.html">
+    News and Events
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact_us.html">
+    Contact Us
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials and Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developers_guide.html">
+    For Developers
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../news_and_events.html">
+    News and Events
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contact_us.html">
+    Contact Us
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials and Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../developers_guide.html">
+    For Developers
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../news_and_events.html">News and Events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contact_us.html">Contact Us</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials and Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers_guide.html">For Developers</a></li>
+</ul>
+</div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">bmtk.tests.u...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="bmtk-tests-utils-sonata-package">
+<h1>bmtk.tests.utils.sonata package<a class="headerlink" href="#bmtk-tests-utils-sonata-package" title="Link to this heading">#</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+</section>
+<section id="module-bmtk.tests.utils.sonata.test_config">
+<span id="bmtk-tests-utils-sonata-test-config-module"></span><h2>bmtk.tests.utils.sonata.test_config module<a class="headerlink" href="#module-bmtk.tests.utils.sonata.test_config" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_build_manifest1">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_build_manifest1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_build_manifest1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_build_manifest1" title="Link to this definition">#</a></dt>
+<dd><p>Test simple manifest</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_build_manifest2">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_build_manifest2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_build_manifest2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_build_manifest2" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_build_manifest_fail1">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_build_manifest_fail1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_build_manifest_fail1"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_build_manifest_fail1" title="Link to this definition">#</a></dt>
+<dd><p>Test exception occurs when variable is missing</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_build_manifest_fail2">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_build_manifest_fail2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_build_manifest_fail2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_build_manifest_fail2" title="Link to this definition">#</a></dt>
+<dd><p>Test recursive definition</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_dict">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_dict" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_json">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_json" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_json_split">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_json_split</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_json_split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_json_split" title="Link to this definition">#</a></dt>
+<dd><p>Can independently load a circuit_config.json and simulation_config.json into a single dict</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_node_set_file">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_node_set_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_node_set_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_node_set_file" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_output_dir">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_output_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_output_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_output_dir" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_speical_vars">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_speical_vars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_speical_vars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_speical_vars" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config.test_user_vars">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config.</span></span><span class="sig-name descname"><span class="pre">test_user_vars</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config.html#test_user_vars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config.test_user_vars" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bmtk.tests.utils.sonata.test_config_validator">
+<span id="bmtk-tests-utils-sonata-test-config-validator-module"></span><h2>bmtk.tests.utils.sonata.test_config_validator module<a class="headerlink" href="#module-bmtk.tests.utils.sonata.test_config_validator" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config_validator.test_inputs">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config_validator.</span></span><span class="sig-name descname"><span class="pre">test_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config_validator.html#test_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config_validator.test_inputs" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config_validator.test_missing_nodes_file">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config_validator.</span></span><span class="sig-name descname"><span class="pre">test_missing_nodes_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config_validator.html#test_missing_nodes_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config_validator.test_missing_nodes_file" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config_validator.test_negative_tstop">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config_validator.</span></span><span class="sig-name descname"><span class="pre">test_negative_tstop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config_validator.html#test_negative_tstop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config_validator.test_negative_tstop" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_config_validator.test_valid_config">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_config_validator.</span></span><span class="sig-name descname"><span class="pre">test_valid_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_config_validator.html#test_valid_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_config_validator.test_valid_config" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bmtk.tests.utils.sonata.test_edge_stats">
+<span id="bmtk-tests-utils-sonata-test-edge-stats-module"></span><h2>bmtk.tests.utils.sonata.test_edge_stats module<a class="headerlink" href="#module-bmtk.tests.utils.sonata.test_edge_stats" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_edge_stats.net">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_edge_stats.</span></span><span class="sig-name descname"><span class="pre">net</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_edge_stats.html#net"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_edge_stats.net" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_edge_stats.test_edge_props_distribution">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_edge_stats.</span></span><span class="sig-name descname"><span class="pre">test_edge_props_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_edge_stats.html#test_edge_props_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_edge_stats.test_edge_props_distribution" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_edge_stats.test_edge_stats_table">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_edge_stats.</span></span><span class="sig-name descname"><span class="pre">test_edge_stats_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_edge_stats.html#test_edge_stats_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_edge_stats.test_edge_stats_table" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_edge_stats.test_nconnections_distributions">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_edge_stats.</span></span><span class="sig-name descname"><span class="pre">test_nconnections_distributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_edge_stats.html#test_nconnections_distributions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_edge_stats.test_nconnections_distributions" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_edge_stats.test_nsyns_distribution">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_edge_stats.</span></span><span class="sig-name descname"><span class="pre">test_nsyns_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_edge_stats.html#test_nsyns_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_edge_stats.test_nsyns_distribution" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_edge_stats.test_to_edges_dataframe">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_edge_stats.</span></span><span class="sig-name descname"><span class="pre">test_to_edges_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_edge_stats.html#test_to_edges_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_edge_stats.test_to_edges_dataframe" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bmtk.tests.utils.sonata.test_edge_stats.test_to_nodes_dataframe">
+<span class="sig-prename descclassname"><span class="pre">bmtk.tests.utils.sonata.test_edge_stats.</span></span><span class="sig-name descname"><span class="pre">test_to_nodes_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bmtk/tests/utils/sonata/test_edge_stats.html#test_to_nodes_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bmtk.tests.utils.sonata.test_edge_stats.test_to_nodes_dataframe" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bmtk.tests.utils.sonata">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bmtk.tests.utils.sonata" title="Link to this heading">#</a></h2>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bmtk.tests.utils.sonata.test_config">bmtk.tests.utils.sonata.test_config module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_build_manifest1"><code class="docutils literal notranslate"><span class="pre">test_build_manifest1()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_build_manifest2"><code class="docutils literal notranslate"><span class="pre">test_build_manifest2()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_build_manifest_fail1"><code class="docutils literal notranslate"><span class="pre">test_build_manifest_fail1()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_build_manifest_fail2"><code class="docutils literal notranslate"><span class="pre">test_build_manifest_fail2()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_dict"><code class="docutils literal notranslate"><span class="pre">test_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_json"><code class="docutils literal notranslate"><span class="pre">test_json()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_json_split"><code class="docutils literal notranslate"><span class="pre">test_json_split()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_node_set_file"><code class="docutils literal notranslate"><span class="pre">test_node_set_file()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_output_dir"><code class="docutils literal notranslate"><span class="pre">test_output_dir()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_speical_vars"><code class="docutils literal notranslate"><span class="pre">test_speical_vars()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config.test_user_vars"><code class="docutils literal notranslate"><span class="pre">test_user_vars()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bmtk.tests.utils.sonata.test_config_validator">bmtk.tests.utils.sonata.test_config_validator module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config_validator.test_inputs"><code class="docutils literal notranslate"><span class="pre">test_inputs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config_validator.test_missing_nodes_file"><code class="docutils literal notranslate"><span class="pre">test_missing_nodes_file()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config_validator.test_negative_tstop"><code class="docutils literal notranslate"><span class="pre">test_negative_tstop()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_config_validator.test_valid_config"><code class="docutils literal notranslate"><span class="pre">test_valid_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bmtk.tests.utils.sonata.test_edge_stats">bmtk.tests.utils.sonata.test_edge_stats module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_edge_stats.net"><code class="docutils literal notranslate"><span class="pre">net()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_edge_stats.test_edge_props_distribution"><code class="docutils literal notranslate"><span class="pre">test_edge_props_distribution()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_edge_stats.test_edge_stats_table"><code class="docutils literal notranslate"><span class="pre">test_edge_stats_table()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_edge_stats.test_nconnections_distributions"><code class="docutils literal notranslate"><span class="pre">test_nconnections_distributions()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_edge_stats.test_nsyns_distribution"><code class="docutils literal notranslate"><span class="pre">test_nsyns_distribution()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_edge_stats.test_to_edges_dataframe"><code class="docutils literal notranslate"><span class="pre">test_to_edges_dataframe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bmtk.tests.utils.sonata.test_edge_stats.test_to_nodes_dataframe"><code class="docutils literal notranslate"><span class="pre">test_to_nodes_dataframe()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bmtk.tests.utils.sonata">Module contents</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/bmtk/bmtk.tests.utils.sonata.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

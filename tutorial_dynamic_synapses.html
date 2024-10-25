@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Synaptic plasticity in Pointnet (STP, facilitation, depression, STDP, and others) &#8212; Brain Modeling Toolkit 1.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=1a8f0775" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <script src="_static/documentation_options.js?v=58fbf978"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Generating spike trains with a refractory period" href="tutorial_spike_trains_refractory.html" />
+    <link rel="prev" title="Tools for generating cell placements" href="tutorial_cell_placement.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+<div style="background-color: #f8f9fa; padding: 10px; text-align: center;">
+    <a href="https://alleninstitute.org/">
+      <img src="https://alleninstitute.org/wp-content/themes/gmmb-allen/images/allen-logo.svg" alt="Your Image" style="max-height: 80px;">
+    </a>
+  </div>
+
+
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="Synaptic-plasticity-in-Pointnet-(STP,-facilitation,-depression,-STDP,-and-others)">
+<h1>Synaptic plasticity in Pointnet (STP, facilitation, depression, STDP, and others)<a class="headerlink" href="#Synaptic-plasticity-in-Pointnet-(STP,-facilitation,-depression,-STDP,-and-others)" title="Link to this heading">¶</a></h1>
+<p>In the NEST simulator, the available postsynaptic current or conductance waveforms (alpha, exp, or delta) are typically integrated into the <em>neuron model</em>. The <em>synapse model</em> allows for more sophisticated and varied built-in models of synapses, such as dynamic synapses or gap junctions.</p>
+<p>A list of available synapse models is listed here: <a class="reference external" href="https://nest-simulator.readthedocs.io/en/v2.18.0/models/synapses.html">https://nest-simulator.readthedocs.io/en/v2.18.0/models/synapses.html</a></p>
+<p>So far, we have been using “static_synapse” (which simply stores target, weight, delay and receiver port). In this mini-tutorial, we will show an example of how to implement facilitation and depression using BMTK. This approach can be used to access other synaptic models as well.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">nest</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="kn">from</span> <span class="nn">bmtk.builder.networks</span> <span class="kn">import</span> <span class="n">NetworkBuilder</span>
+<span class="kn">from</span> <span class="nn">bmtk.simulator</span> <span class="kn">import</span> <span class="n">pointnet</span>
+<span class="kn">from</span> <span class="nn">bmtk.analyzer.compartment</span> <span class="kn">import</span> <span class="n">plot_traces</span>
+<span class="kn">from</span> <span class="nn">bmtk.analyzer.spike_trains</span> <span class="kn">import</span> <span class="n">plot_raster</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+              -- N E S T --
+  Copyright (C) 2004 The NEST Initiative
+
+ Version: nest-3.0
+ Built: Sep 14 2022 22:43:51
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Problems or suggestions?
+   Visit https://www.nest-simulator.org
+
+ Type &#39;nest.help()&#39; to find out more about NEST.
+
+</pre></div></div>
+</div>
+<p>First, we will create a two neuron network. The presynaptic neuron is a simple integrate-and-fire neuron. If we open the dynamics_params file <code class="docutils literal notranslate"><span class="pre">472363762_point_with_cc.json</span></code> within <em>/components/point</em>neuron_models_, we see that the parameter <strong>I_e</strong> has been set to 190.0, which injects a constant background current, triggering regular firing in the presynaptic neuron.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;I_e&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">190.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tau_m&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.9</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;C_m&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">239.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;t_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;E_L&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-78.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;V_th&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-43.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;V_reset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-55.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">net</span> <span class="o">=</span> <span class="n">NetworkBuilder</span><span class="p">(</span><span class="s1">&#39;two_cell&#39;</span><span class="p">)</span>
+
+<span class="c1"># Build Nodes</span>
+
+<span class="n">net</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span>
+    <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;point_neuron&#39;</span><span class="p">,</span>
+    <span class="n">model_template</span><span class="o">=</span> <span class="s1">&#39;nest:iaf_psc_alpha&#39;</span><span class="p">,</span>
+    <span class="n">dynamics_params</span><span class="o">=</span><span class="s1">&#39;472363762_point_with_cc.json&#39;</span><span class="p">,</span>
+    <span class="n">ei_type</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span>
+    <span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;presyn&#39;</span>
+<span class="p">)</span>
+
+<span class="n">net</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span>
+    <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;point_neuron&#39;</span><span class="p">,</span>
+    <span class="n">model_template</span><span class="o">=</span> <span class="s1">&#39;nest:glif_lif_asc_psc&#39;</span><span class="p">,</span>
+    <span class="n">dynamics_params</span><span class="o">=</span><span class="s1">&#39;Scnn1a_515806250_glif_lif_asc.json&#39;</span><span class="p">,</span>
+    <span class="n">ei_type</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span>
+    <span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;postsyn&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We will add a ‘static_synapse’ connection between the neurons so we can first see the baseline behavior of the network with an inhibitory static synapse.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build edge</span>
+
+<span class="n">net</span><span class="o">.</span><span class="n">add_edges</span><span class="p">(</span>
+    <span class="n">source</span><span class="o">=</span><span class="n">net</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;presyn&#39;</span><span class="p">),</span>
+    <span class="n">target</span><span class="o">=</span><span class="n">net</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;postsyn&#39;</span><span class="p">),</span>
+    <span class="n">connection_rule</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">model_template</span><span class="o">=</span><span class="s1">&#39;static_synapse&#39;</span><span class="p">,</span>
+    <span class="n">dynamics_params</span><span class="o">=</span><span class="s1">&#39;static_ExcToExc.json&#39;</span><span class="p">,</span>
+    <span class="n">delay</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">syn_weight</span><span class="o">=-</span><span class="mi">100</span>
+<span class="p">)</span>
+
+<span class="n">net</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">net</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn/network&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bmtk.utils.create_environment</span> <span class="kn">import</span> <span class="n">create_environment</span>
+
+<span class="n">create_environment</span><span class="p">(</span>
+    <span class="s1">&#39;pointnet&#39;</span><span class="p">,</span>
+    <span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn&#39;</span><span class="p">,</span>
+    <span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;config.pointnet.json&#39;</span><span class="p">,</span>
+    <span class="n">components_dir</span><span class="o">=</span><span class="s1">&#39;../sources/pointnet_files/dynamic_synapses&#39;</span><span class="p">,</span>
+    <span class="n">network_dir</span><span class="o">=</span><span class="s1">&#39;network&#39;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;output_pointnet&#39;</span><span class="p">,</span>
+    <span class="n">tstop</span><span class="o">=</span><span class="mf">3000.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">report_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;V_m&#39;</span><span class="p">],</span>
+    <span class="n">run_script</span><span class="o">=</span><span class="s1">&#39;run_pointnet.py&#39;</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">configure</span> <span class="o">=</span> <span class="n">pointnet</span><span class="o">.</span><span class="n">Config</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="s1">&#39;sim_dyn_syn/config.pointnet.json&#39;</span><span class="p">)</span>
+<span class="n">configure</span><span class="o">.</span><span class="n">build_env</span><span class="p">()</span>
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">pointnet</span><span class="o">.</span><span class="n">PointNetwork</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">configure</span><span class="p">)</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">pointnet</span><span class="o">.</span><span class="n">PointSimulator</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">configure</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:26:43,972 [INFO] Created log file
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Created log file
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:26:43,986 [INFO] Batch processing nodes for two_cell/0.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Batch processing nodes for two_cell/0.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:26:43,998 [INFO] Setting up output directory
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Setting up output directory
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:26:44,000 [INFO] Building cells.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Building cells.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:26:44,006 [INFO] Building recurrent connections
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Building recurrent connections
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:26:44,012 [INFO] Network created.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Network created.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:26:44,018 [INFO] Starting Simulation
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Starting Simulation
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:26:44,159 [INFO] Simulation finished, finalizing results.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Simulation finished, finalizing results.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:26:44,217 [INFO] Done.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Done.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Presynaptic cell</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plot_traces</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn/config.pointnet.json&#39;</span><span class="p">,</span> <span class="n">report_name</span><span class="o">=</span><span class="s1">&#39;V_m_report&#39;</span><span class="p">,</span> <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/tutorial_dynamic_synapses_8_0.png" src="_images/tutorial_dynamic_synapses_8_0.png" />
+</div>
+</div>
+<p>Our background current produces regular firing in the presynaptic cell. Note that for LIF models the spike itself is not shown and just produces a reset of the membrane potential.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Postsynaptic cell</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plot_traces</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn/config.pointnet.json&#39;</span><span class="p">,</span> <span class="n">report_name</span><span class="o">=</span><span class="s1">&#39;V_m_report&#39;</span><span class="p">,</span> <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/tutorial_dynamic_synapses_10_0.png" src="_images/tutorial_dynamic_synapses_10_0.png" />
+</div>
+</div>
+<p>In the postsynaptic cell, we can see the summation of a series of IPSPs triggered by each presynaptic spike (note that the postsynaptic effect is modeled as a current but produces the voltage effect seen here).</p>
+<p>Next, we’ll try rebuilding the network, this time with a facilitating synapse based on the “tsodyks2_synapse” model. This model is described in more detail at:</p>
+<p><a class="reference external" href="https://nest-simulator.readthedocs.io/en/stable/auto_examples/evaluate_tsodyks2_synapse.html">https://nest-simulator.readthedocs.io/en/stable/auto_examples/evaluate_tsodyks2_synapse.html</a></p>
+<p>as well as on the synapses documentation page linked at the top.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clear the network folder</span>
+
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;sim_dyn_syn/network/*&#39;</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">fnfe</span><span class="p">:</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">net2</span> <span class="o">=</span> <span class="n">NetworkBuilder</span><span class="p">(</span><span class="s1">&#39;two_cell_fac&#39;</span><span class="p">)</span>
+
+<span class="c1"># Build Nodes</span>
+
+<span class="n">net2</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span>
+    <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;point_neuron&#39;</span><span class="p">,</span>
+    <span class="n">model_template</span><span class="o">=</span> <span class="s1">&#39;nest:iaf_psc_alpha&#39;</span><span class="p">,</span>
+    <span class="n">dynamics_params</span><span class="o">=</span><span class="s1">&#39;472363762_point_with_cc.json&#39;</span><span class="p">,</span>
+    <span class="n">ei_type</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span>
+    <span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;presyn&#39;</span>
+<span class="p">)</span>
+
+<span class="n">net2</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span>
+    <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;point_neuron&#39;</span><span class="p">,</span>
+    <span class="n">model_template</span><span class="o">=</span> <span class="s1">&#39;nest:glif_lif_asc_psc&#39;</span><span class="p">,</span>
+    <span class="n">dynamics_params</span><span class="o">=</span><span class="s1">&#39;Scnn1a_515806250_glif_lif_asc.json&#39;</span><span class="p">,</span>
+    <span class="n">ei_type</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span>
+    <span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;postsyn&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">net2</span><span class="o">.</span><span class="n">add_edges</span><span class="p">(</span>
+    <span class="n">source</span><span class="o">=</span><span class="n">net2</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;presyn&#39;</span><span class="p">),</span>
+    <span class="n">target</span><span class="o">=</span><span class="n">net2</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;postsyn&#39;</span><span class="p">),</span>
+    <span class="n">connection_rule</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">model_template</span><span class="o">=</span><span class="s1">&#39;tsodyks2_synapse&#39;</span><span class="p">,</span>
+    <span class="n">dynamics_params</span><span class="o">=</span><span class="s1">&#39;TsodyksFac_glif.json&#39;</span><span class="p">,</span>
+    <span class="n">delay</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">syn_weight</span><span class="o">=-</span><span class="mi">100</span>
+<span class="p">)</span>
+
+<span class="n">net2</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">net2</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn/network&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We have created a new dynamics_params file <code class="docutils literal notranslate"><span class="pre">tsodyksFac_glif.json</span></code> based on the dynamic_params file for the static synapse and have added to it the following params for the tsodyks2 synapse:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;U&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;u&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tau_rec&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tau_fac&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1000.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">250.0</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">create_environment</span><span class="p">(</span>
+    <span class="s1">&#39;pointnet&#39;</span><span class="p">,</span>
+    <span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn&#39;</span><span class="p">,</span>
+    <span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;config.pointnet.json&#39;</span><span class="p">,</span>
+    <span class="n">components_dir</span><span class="o">=</span><span class="s1">&#39;../sources/pointnet_files/dynamic_synapses&#39;</span><span class="p">,</span>
+    <span class="n">network_dir</span><span class="o">=</span><span class="s1">&#39;network&#39;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;output_pointnet&#39;</span><span class="p">,</span>
+    <span class="n">tstop</span><span class="o">=</span><span class="mf">3000.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">report_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;V_m&#39;</span><span class="p">],</span>
+    <span class="n">run_script</span><span class="o">=</span><span class="s1">&#39;run_pointnet.py&#39;</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">configure</span> <span class="o">=</span> <span class="n">pointnet</span><span class="o">.</span><span class="n">Config</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="s1">&#39;sim_dyn_syn/config.pointnet.json&#39;</span><span class="p">)</span>
+<span class="n">configure</span><span class="o">.</span><span class="n">build_env</span><span class="p">()</span>
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">pointnet</span><span class="o">.</span><span class="n">PointNetwork</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">configure</span><span class="p">)</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">pointnet</span><span class="o">.</span><span class="n">PointSimulator</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">configure</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:28,710 [INFO] Created log file
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Created log file
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:28,728 [INFO] Batch processing nodes for two_cell_fac/0.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Batch processing nodes for two_cell_fac/0.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:28,739 [INFO] Setting up output directory
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Setting up output directory
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:28,740 [INFO] Building cells.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Building cells.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:28,746 [INFO] Building recurrent connections
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Building recurrent connections
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:28,756 [INFO] Network created.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Network created.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:28,763 [INFO] Starting Simulation
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Starting Simulation
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:28,878 [INFO] Simulation finished, finalizing results.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Simulation finished, finalizing results.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:28,924 [INFO] Done.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Done.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Presynaptic cell</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plot_traces</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn/config.pointnet.json&#39;</span><span class="p">,</span> <span class="n">report_name</span><span class="o">=</span><span class="s1">&#39;V_m_report&#39;</span><span class="p">,</span> <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/tutorial_dynamic_synapses_18_0.png" src="_images/tutorial_dynamic_synapses_18_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Postsynaptic cell</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plot_traces</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn/config.pointnet.json&#39;</span><span class="p">,</span> <span class="n">report_name</span><span class="o">=</span><span class="s1">&#39;V_m_report&#39;</span><span class="p">,</span> <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/tutorial_dynamic_synapses_19_0.png" src="_images/tutorial_dynamic_synapses_19_0.png" />
+</div>
+</div>
+<p>This time, the IPSP’s get incrementally larger as they occur closely in succession, simulating synaptic facilitation. We can use the same model, just changing the parameters, to create a depressing synapse. We will add these parameter values to the dynamic_params:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;U&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.67</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;u&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.67</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tau_rec&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">450.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;tau_fac&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">250.0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clear the network folder</span>
+
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;sim_dyn_syn/network/*&#39;</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">fnfe</span><span class="p">:</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">net3</span> <span class="o">=</span> <span class="n">NetworkBuilder</span><span class="p">(</span><span class="s1">&#39;two_cell_dep&#39;</span><span class="p">)</span>
+
+<span class="c1"># Build Nodes</span>
+
+<span class="n">net3</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span>
+    <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;point_neuron&#39;</span><span class="p">,</span>
+    <span class="n">model_template</span><span class="o">=</span> <span class="s1">&#39;nest:iaf_psc_alpha&#39;</span><span class="p">,</span>
+    <span class="n">dynamics_params</span><span class="o">=</span><span class="s1">&#39;472363762_point_with_cc.json&#39;</span><span class="p">,</span>
+    <span class="n">ei_type</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span>
+    <span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;presyn&#39;</span>
+<span class="p">)</span>
+
+<span class="n">net3</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span>
+    <span class="n">N</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;point_neuron&#39;</span><span class="p">,</span>
+    <span class="n">model_template</span><span class="o">=</span> <span class="s1">&#39;nest:glif_lif_asc_psc&#39;</span><span class="p">,</span>
+    <span class="n">dynamics_params</span><span class="o">=</span><span class="s1">&#39;Scnn1a_515806250_glif_lif_asc.json&#39;</span><span class="p">,</span>
+    <span class="n">ei_type</span><span class="o">=</span><span class="s1">&#39;e&#39;</span><span class="p">,</span>
+    <span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;postsyn&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">net3</span><span class="o">.</span><span class="n">add_edges</span><span class="p">(</span>
+    <span class="n">source</span><span class="o">=</span><span class="n">net3</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;presyn&#39;</span><span class="p">),</span>
+    <span class="n">target</span><span class="o">=</span><span class="n">net3</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">pop_name</span><span class="o">=</span><span class="s1">&#39;postsyn&#39;</span><span class="p">),</span>
+    <span class="n">connection_rule</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">model_template</span><span class="o">=</span><span class="s1">&#39;tsodyks2_synapse&#39;</span><span class="p">,</span>
+    <span class="n">dynamics_params</span><span class="o">=</span><span class="s1">&#39;TsodyksDep_glif.json&#39;</span><span class="p">,</span>
+    <span class="n">delay</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">syn_weight</span><span class="o">=-</span><span class="mi">100</span>
+<span class="p">)</span>
+
+<span class="n">net3</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">net3</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;network&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">create_environment</span><span class="p">(</span>
+    <span class="s1">&#39;pointnet&#39;</span><span class="p">,</span>
+    <span class="n">base_dir</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn&#39;</span><span class="p">,</span>
+    <span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;config.pointnet.json&#39;</span><span class="p">,</span>
+    <span class="n">components_dir</span><span class="o">=</span><span class="s1">&#39;../sources/pointnet_files/dynamic_synapses&#39;</span><span class="p">,</span>
+    <span class="n">network_dir</span><span class="o">=</span><span class="s1">&#39;network&#39;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;output_pointnet&#39;</span><span class="p">,</span>
+    <span class="n">tstop</span><span class="o">=</span><span class="mf">3000.0</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">report_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;V_m&#39;</span><span class="p">],</span>
+    <span class="n">run_script</span><span class="o">=</span><span class="s1">&#39;run_pointnet.py&#39;</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">configure</span> <span class="o">=</span> <span class="n">pointnet</span><span class="o">.</span><span class="n">Config</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="s1">&#39;sim_dyn_syn/config.pointnet.json&#39;</span><span class="p">)</span>
+<span class="n">configure</span><span class="o">.</span><span class="n">build_env</span><span class="p">()</span>
+
+<span class="n">network</span> <span class="o">=</span> <span class="n">pointnet</span><span class="o">.</span><span class="n">PointNetwork</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">configure</span><span class="p">)</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">pointnet</span><span class="o">.</span><span class="n">PointSimulator</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">configure</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:54,260 [INFO] Created log file
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Created log file
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:54,272 [INFO] Batch processing nodes for two_cell_dep/0.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Batch processing nodes for two_cell_dep/0.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:54,282 [INFO] Setting up output directory
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Setting up output directory
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:54,283 [INFO] Building cells.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Building cells.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:54,289 [INFO] Building recurrent connections
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Building recurrent connections
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:54,294 [INFO] Network created.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Network created.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:54,299 [INFO] Starting Simulation
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Starting Simulation
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:54,437 [INFO] Simulation finished, finalizing results.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Simulation finished, finalizing results.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-10-28 17:27:54,485 [INFO] Done.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO:NestIOUtils:Done.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Presynaptic cell</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plot_traces</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn/config.pointnet.json&#39;</span><span class="p">,</span> <span class="n">report_name</span><span class="o">=</span><span class="s1">&#39;V_m_report&#39;</span><span class="p">,</span> <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/tutorial_dynamic_synapses_26_0.png" src="_images/tutorial_dynamic_synapses_26_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Postsynaptic cell</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plot_traces</span><span class="p">(</span><span class="n">config_file</span><span class="o">=</span><span class="s1">&#39;sim_dyn_syn/config.pointnet.json&#39;</span><span class="p">,</span> <span class="n">report_name</span><span class="o">=</span><span class="s1">&#39;V_m_report&#39;</span><span class="p">,</span> <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/tutorial_dynamic_synapses_27_0.png" src="_images/tutorial_dynamic_synapses_27_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="builder.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulators.html">Simulation Engines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analyzer.html">Analyzing the Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Main Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="ad_tutorials.html">Additional Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial_cell_placement.html">Cell placement: Functions for spatially distributing units</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Accessing synapse models in NEST to model dynamic synapses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial_spike_trains_refractory.html">Creating spike trains with refractory periods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial_bionet_disconnected_sims.html">Replaying disconnected simulations in BioNet</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Example Networks</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/AllenInstitute/bmtk.git">Github Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workshop.html">Annual Modeling Software Workshop</a></li>
+<li class="toctree-l1"><a class="reference internal" href="registration.html">Registration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributors.html">Contributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_to_cite.html">How to Cite</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bmtk/bmtk.html">Source Documentation</a></li>
+</ul>
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+
+    <div class="footer">
+      
+      
+      
+      <a href="_sources/tutorial_dynamic_synapses.ipynb.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+<script type="text/javascript" src="_static/external_assets/javascript/portalFooter.js"></script>
+
+  </body>
+</html>
