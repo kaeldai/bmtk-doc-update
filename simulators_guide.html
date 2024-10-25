@@ -419,8 +419,9 @@ document.write(`
 <p>In this section we will show how to use BMTK and SONATA to run simulation(s) on a brain network model.</p>
 <p>Unlike other neural simulation tools which will create and simulate a network in one script, BMTK workflow design is to
 to split up these two parts of the process. So before we can run a simulation we must first procure a network model
-(typically store using <a href="#id2"><span class="problematic" id="id3">`SONATA circuit format`_</span></a>). We can either download an existing model, or alternatively use a tool
-like the BMTK Network Builder to create one from scratch.</p>
+(typically store using <a class="reference external" href="https://github.com/AllenInstitute/sonata/blob/master/docs/SONATA_DEVELOPER_GUIDE.md#representing-circuits">SONATA circuit format</a>).
+We can either download an existing model, or alternatively use a tool like the BMTK Network Builder to create one from
+scratch.</p>
 <p>Once we have our network to run simulations on, we typically need to complete the following steps:</p>
 <ol class="arabic simple">
 <li><p><strong>Setup the enviornment</strong>. For most networks, this entails downloading or creating any auxiliary files required for
@@ -447,8 +448,12 @@ are the same format</p>
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 example network</div>
-<p class="sd-card-text">To help make the concepts for concrete we will also be referencing the <strong>example</strong> network simulation found here. This
-is a biophysically detailed network containing a 400 cells with feedforward synaptic stimuli.</p>
+<p class="sd-card-text">To help make the concepts for concrete we will also be referencing the <strong>example</strong> network simulation found
+<a class="reference external" href="https://github.com/kaeldai/bmtk/tree/refactor/documentation/docs/autodocs/source/example_bionetwork">here</a>.
+This is a biophysically detailed network containing a 450 cells with a mixture of both multicompartment biophysically
+detailed cells with parameters and morphologies download form the Allen Cell Database, surrounded by a ring of
+point integrate and fire neuron. For the main configuration will feedforward synaptic stimuli emerging from virtual
+cells firing at a randomized rate.</p>
 </div>
 </div>
 <section id="setting-up-the-environment">
@@ -469,15 +474,15 @@ practices is to put them inside a single directory with the following structure.
 <a class="reference internal image-reference" href="_images/bmtk_sim_env.2024.png"><img alt="_images/bmtk_sim_env.2024.png" src="_images/bmtk_sim_env.2024.png" style="width: 371.20000000000005px; height: 338.8px;" />
 </a>
 </figure>
-<p>BMTK includes the <a class="reference external" href="SIMSETUP">create_environment</a> tool that can help new users generate an environmental directory from scratch.
-Another option we recommend, especially if running simulations on an already existing model, is to download an existing
-simulation environment and make changes as necessary.</p>
+<p>BMTK includes the <a class="reference external" href="SIMSETUP">create_environment</a> tool that can help new users generate an environmental directory from
+scratch. Another option we recommend, especially if running simulations on an already existing model, is to download an
+existing simulation environment and make changes as necessary.</p>
 <div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm user-guide-example sd-border-2 docutils">
 <div class="sd-card-body docutils">
 <div class="sd-card-title sd-font-weight-bold docutils">
 example network</div>
-<p class="sd-card-text">When creating the <a href="#id4"><span class="problematic" id="id5">`BioNet example`_</span></a> we used the <cite>build_network.py</cite> python script to build and save the network model
-into the <strong>network/</strong> sub-directory (see <a href="#id6"><span class="problematic" id="id7">`BMTK Builder Guide`_</span></a> for more information on that process). With the network
+<p class="sd-card-text">When creating the <a href="#id2"><span class="problematic" id="id3">`BioNet example`_</span></a> we used the <cite>build_network.py</cite> python script to build and save the network model
+into the <strong>network/</strong> sub-directory (see <a href="#id4"><span class="problematic" id="id5">`BMTK Builder Guide`_</span></a> for more information on that process). With the network
 built we then used the following command to generate baseline strucutre plus <cite>config.simulation.json</cite> configuration and
 the <cite>run_bionet.py</cite> script used to execute the simulation:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>bmtk.utils.create_environment<span class="w">         </span><span class="se">\</span>
@@ -498,7 +503,7 @@ explicity defined, the corresponding subfolders will be empty. In particular out
 SWC morphology and dynamics parameters files that can be downloaded from the Allen Cell Types Database, renamed and
 placed into their corresponding folders.</p>
 <figure class="align-default">
-<a class="reference internal image-reference" href="_images/ctdb_screenshot.ephys_page.highlighted.png"><img alt="_images/ctdb_screenshot.ephys_page.highlighted.png" src="_images/ctdb_screenshot.ephys_page.highlighted.png" style="width: 381.20000000000005px; height: 378.8px;" />
+<a class="reference internal image-reference" href="_images/ctdb2bmtk_model_download.png"><img alt="_images/ctdb2bmtk_model_download.png" src="_images/ctdb2bmtk_model_download.png" style="width: 1288.0px; height: 421.6px;" />
 </a>
 </figure>
 <p class="sd-card-text">For simulation input our network will be stimulated by feed-forwar pre-generated spike-trains that will save into
@@ -738,9 +743,53 @@ find neccesary files required to instantiate the network for simulation.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3" open="open">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Recognized “components” directories</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<blockquote>
+<div><div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p class="sd-card-text">name</p></th>
+<th class="head"><p class="sd-card-text">description</p></th>
+<th class="head"><p class="sd-card-text">utilized by</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p class="sd-card-text">biophysical_neuron_models_dir</p></td>
+<td><p class="sd-card-text">Directory containing files for instantiation of biophysically detailed models. Typically containing json
+cell model files downloaded from the Allen Cell-Types Database.</p></td>
+<td><p class="sd-card-text"><strong>dynamics_params</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p class="sd-card-text">point_neuron_models_dir</p></td>
+<td><p class="sd-card-text">Directory containing files for instantiation of point-neuron models. Typically json parameter files, or with
+PointNet may be model files downloaded from the Allen Cell-Types Database to instantiate optimized “glif”
+models.</p></td>
+<td><p class="sd-card-text"><strong>dynamics_params</strong></p></td>
+</tr>
+<tr class="row-even"><td><p class="sd-card-text">filters_dir</p></td>
+<td><p class="sd-card-text">Directory containing parameters files for instiating models used by FilterNet.</p></td>
+<td><p class="sd-card-text"><strong>dynamics_params</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p class="sd-card-text">morphologies_dir</p></td>
+<td><p class="sd-card-text">Directory containing any morphological reconstruction files (ex. swc, neuralucdia).</p></td>
+<td><p class="sd-card-text"><strong>morphology</strong></p></td>
+</tr>
+<tr class="row-even"><td><p class="sd-card-text">synpatic_models_dir</p></td>
+<td><p class="sd-card-text">Directory containing files for specific synaptic parameters.</p></td>
+<td><p class="sd-card-text"><strong>dynamics_params</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p class="sd-card-text">mechanisms_dir</p></td>
+<td><p class="sd-card-text">Directory containing any morphological reconstruction files (ex. swc, neuralucdia)</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p class="sd-card-text">templates_dir</p></td>
+<td><p class="sd-card-text">Contains NEURON Hoc template files or NeuroML cell or synapse models.</p></td>
+<td><p class="sd-card-text"><strong>model_template</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></blockquote>
 </div>
 </details><div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm user-guide-example sd-border-2 docutils">
 <div class="sd-card-body docutils">
@@ -1162,6 +1211,7 @@ path you choose). Then to import these two sections into one file just use the f
 <span class="w">  </span><span class="nt">&quot;reports&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
 
 <span class="w">  </span><span class="nt">&quot;network&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./path/to/config.network.json&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>This can be useful if you have multiple simulations on the same network with different input regimens. It insures that
@@ -1469,18 +1519,300 @@ be used by compartmental and point models as realistic stimuli.</p>
 <h3>Exectuion and Run Options<a class="headerlink" href="#exectuion-and-run-options" title="Link to this heading">#</a></h3>
 <p>The following guides and tutorials for setting up and running simulations across a wide variety of different
 computing environments.</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-4 sd-row-cols-lg-5 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-1 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Running BMTK on the on HPC.</div>
+<p class="sd-card-text">Guides, tips and tricks for running bmtk using high-performance computing resources with Message Passing
+Interface (MPI). Including tips for installing MPI, running on slurm, and using singularity container.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Running BMTK on the Neuroscience Gateway (NSG)</div>
+<p class="sd-card-text">The Neuroscience Gateway is a tool for neuroscientists to access HPC resources for free. Guide shows how to
+use BMTK with the NSG web and API interface to build networks and run large simulations.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Cybershuttle</div>
+<p class="sd-card-text">Comming Soon.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Using BMTK Images and Applications</div>
+<p class="sd-card-text">How to setup and run BMTK using pre-built applications and images; including with Docker, AppImage, and Snap.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Parallel and Serial Simulations</div>
+<p class="sd-card-text">How to run multiple simulations in parallel and/or serial; including grid searching, evolutionary, and gradient
+search methods for optimizing network and simulations.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+</div>
+</div>
 </section>
 <section id="id1">
 <h3>Inputs<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>BMTK supports using a wide variety of inputs and stimulus when running a simulation. Please see the following guides
+for built-in “inputs” types and how to use them in your simulations.</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-5 sd-row-cols-lg-5 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-1 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Spiking inputs</div>
+<p class="sd-card-text">Demonstrates various ways which one can drive network using synaptic spikes (eg. action potentials) including:</p>
+<ul class="simple">
+<li><p class="sd-card-text">Using PoissonSpikesGenerater to pre-generate spike trains for network stimulus.</p></li>
+<li><p class="sd-card-text">Dynamically insert custom spike train files and functions into a simulation.</p></li>
+<li><p class="sd-card-text">Inject in-vivo spike-train recordings into a simulation with Dandi and NWB 2.0.</p></li>
+</ul>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Current clamp</div>
+<p class="sd-card-text">Inject positve or negative current into one or more cells.</p>
+<ul class="simple">
+<li><p class="sd-card-text">Using simple block stimuli, or complex current wave-form injection from a list, file or function.</p></li>
+<li><p class="sd-card-text">Inject in-virtro current-clamp sweeps using Allen Cell-Types experiments.</p></li>
+<li><p class="sd-card-text">How to create optogenetic like polarization and depolarization of selected cells.</p></li>
+</ul>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Voltage clamps</div>
+<p class="sd-card-text">Insert single or mulitelectrode voltage clamping into one or more cells in a network.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+extracellular stimulation</div>
+<p class="sd-card-text">Simulate the placement of an extracellular electrode into a network that can change polarization of the
+cell membranes. Create custom wave forms, or use COMSOL to grainular alter extracellular field.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+spontaneous activity</div>
+<p class="sd-card-text">Allows you to selectively induce spontaneous synaptic activity between a subset of cells. Users can choose
+which synapses to target based on the synaptic, pre- or post-synaptic cell atrributes. The activity can be
+random or predetermined from a list or function.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+replaying previous simulation activity</div>
+<p class="sd-card-text">Users can take a subset of the results from a previously generated network results and inject them into a
+current simulation. Can target specific subsets of cells or synapses to replay. Useful in isolating activity
+of a subset or motif of cells within a much larger network.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Visual stimuli</div>
+<p class="sd-card-text">Play an image, movie, drifting-grating, or one of a number of visual stimuli onto a network to see how cells
+encode sensory information into firing rates and spike trains.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Auditory stimuli.</div>
+<p class="sd-card-text">Convert auditory wave files into firing rates and spike trains.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+</div>
+</div>
 </section>
 <section id="reports">
 <h3>Reports<a class="headerlink" href="#reports" title="Link to this heading">#</a></h3>
+<p>Modelers can choose which variables and changes in a simulation to record using the “reports” section. See following
+guides for further information how to implement such output.</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-5 sd-row-cols-lg-5 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-1 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Spike Train Recording</div>
+<p class="sd-card-text">Advanced options for recording spikes (eg. action potential) events during the simulation.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Membrane and Ion Recording</div>
+<p class="sd-card-text">Recording a contingous time-trace for one or more cell variable, such as membrane voltage, calcium
+concentration, or any number of other ion or channel variables.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Synapse Recording</div>
+<p class="sd-card-text">Allows users to gather changes in synaptic strength and other variables over the time course of a simualtion.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Firing Rates</div>
+<p class="sd-card-text">Recording individual cell or even population level wide firing rate changes over teh course of a simulation.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Local Field Potentials (LFP)</div>
+<p class="sd-card-text">Allows modelers to simulate the injection of multi-channel electrodes into a network to record dynamics of the
+extraceullar electrical field. Allows modelers to see the full field, or even the contribution of single cells.
+Also capable of generate curren source densities (CSD) maps to see the location of major sources and sinks
+within a network.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+</div>
+</div>
 </section>
 <section id="useful-options-and-scripts">
 <h3>Useful Options and Scripts<a class="headerlink" href="#useful-options-and-scripts" title="Link to this heading">#</a></h3>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-5 sd-row-cols-lg-5 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-1 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+environmental setup (create_environment) script.</div>
+<p class="sd-card-text">A useful tool for generating simulation environments from the ground up.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Network and Simulation validation</div>
+<p class="sd-card-text">Tools and recommendation for checking on a network and setup before running a simulation. Includes tools and
+guides for fetching network statistics and how one can compare multiple models.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Advanced Configuration options.</div>
+<p class="sd-card-text">Advance options and directives for the SONATA simulation configuration file.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Advanced Population Querying and Filtering</div>
+<p class="sd-card-text">Advance options and tricks for selecting sub populations (or “node_sets”).</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+</div>
+</div>
 </section>
 <section id="advanced-features">
 <h3>Advanced Features<a class="headerlink" href="#advanced-features" title="Link to this heading">#</a></h3>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-5 sd-row-cols-lg-5 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-1 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Custom Inputs and Report Modules</div>
+<p class="sd-card-text">Allows users to create modules to alter the setup, control flow, and output of a given simulation.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Custom Cell Models and Instantiation.</div>
+<p class="sd-card-text">How to create and alter cell models using Python, NEURON or NEST.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Adjust Synaptic Weights</div>
+<p class="sd-card-text">Update synaptic weights before a simulation.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+Custom Synaptic Models</div>
+<p class="sd-card-text">Update and alter synaptic models, their parameters and/or instantiation.</p>
+</div>
+<a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 </section>
