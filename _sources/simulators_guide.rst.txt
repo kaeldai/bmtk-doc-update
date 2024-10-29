@@ -1301,25 +1301,42 @@ Useful Options and Scripts
 Advanced Features
 ^^^^^^^^^^^^^^^^^
 
-.. grid:: 2 2 5 5
-    :gutter: 1
+.. grid:: 2 2 4 4
+    :gutter: 2
 
-    .. grid-item-card:: Custom Inputs and Report Modules
-        :link: builder_guide 
-
+    .. grid-item-card:: 
+        :link: builder_guide
+        :class-header: sd-d-flex-column sd-align-minor-center
+        :class-body: sd-card-body-custom
+        
+        Customized Modules for Simulation                                 
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        
         Allows users to create modules to alter the setup, control flow, and output of a given simulation.
 
-    .. grid-item-card:: Custom Cell Models and Instantiation.
+    .. grid-item-card::
         :link: builder_guide 
+        :class-header: sd-d-flex-column sd-align-minor-center
+       
+        Custom Cell Models and Instantiation.
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         How to create and alter cell models using Python, NEURON or NEST.
 
-    .. grid-item-card:: Adjust Synaptic Weights
+    .. grid-item-card:: 
         :link: builder_guide 
+        :class-header: sd-d-flex-row sd-align-minor-center
+
+        Adjust Synaptic Weights
+        ^^^^^^^^^^^^^^^^^^^^^^^
 
         Update synaptic weights before a simulation.
 
-    .. grid-item-card:: Custom Synaptic Models
+    .. grid-item-card:: 
         :link: builder_guide 
+        :class-header: sd-d-flex-row sd-align-minor-center
+
+        Custom Synaptic Models
+        ^^^^^^^^^^^^^^^^^^^^^^
 
         Update and alter synaptic models, their parameters and/or instantiation.

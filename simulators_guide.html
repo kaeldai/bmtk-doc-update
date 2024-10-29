@@ -30,7 +30,7 @@
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=841929b9" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=8cbc5bfe" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
@@ -45,6 +45,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'simulators_guide';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Analyzing the Results" href="analyzer.html" />
+    <link rel="prev" title="Building brain network models with BMTK Network Builder" href="builder.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -110,10 +112,10 @@
       <div class="navbar-item">
 
   
-    
+     
   
 
-<a class="navbar-brand logo" href="index.html">
+<a class="navbar-brand logo" href="https://alleninstitute.org/">
   
   
   
@@ -168,7 +170,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="user_guide.html">
     User Guide
   </a>
@@ -257,8 +259,6 @@ document.write(`
       
       
       
-        
-      
       <div class="bd-sidebar-primary bd-sidebar">
         
 
@@ -302,7 +302,7 @@ document.write(`
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="user_guide.html">
     User Guide
   </a>
@@ -350,19 +350,21 @@ document.write(`
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item">
-<h3><a href="index.html">Table of Contents</a></h3>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="index.html">About BMTK</a></li>
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="builder.html">Building brain network models with BMTK Network Builder</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Running Network Simulations with BMTK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="analyzer.html">Analyzing the Results</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="news_and_events.html">News and Events</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contact_us.html">Contact Us</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials and Examples</a></li>
-<li class="toctree-l1"><a class="reference internal" href="developers_guide.html">For Developers</a></li>
 </ul>
 </div>
+</nav></div>
     </div>
   
   
@@ -397,6 +399,9 @@ document.write(`
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
+    
+    <li class="breadcrumb-item"><a href="user_guide.html" class="nav-link">User Guide</a></li>
+    
     <li class="breadcrumb-item active" aria-current="page">Running...</li>
   </ul>
 </nav>
@@ -1774,39 +1779,43 @@ Advanced Population Querying and Filtering</div>
 <section id="advanced-features">
 <h3>Advanced Features<a class="headerlink" href="#advanced-features" title="Link to this heading">#</a></h3>
 <div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
-<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-5 sd-row-cols-lg-5 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-1 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-4 sd-row-cols-lg-4 sd-g-2 sd-g-xs-2 sd-g-sm-2 sd-g-md-2 sd-g-lg-2 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
-<div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-Custom Inputs and Report Modules</div>
+<div class="sd-card-header sd-d-flex-column sd-align-minor-center docutils">
+<p class="sd-card-text">Customized Modules for Simulation</p>
+</div>
+<div class="sd-card-body sd-card-body-custom docutils">
 <p class="sd-card-text">Allows users to create modules to alter the setup, control flow, and output of a given simulation.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
 </div>
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-header sd-d-flex-column sd-align-minor-center docutils">
+<p class="sd-card-text">Custom Cell Models and Instantiation.</p>
+</div>
 <div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-Custom Cell Models and Instantiation.</div>
 <p class="sd-card-text">How to create and alter cell models using Python, NEURON or NEST.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
 </div>
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-header sd-d-flex-row sd-align-minor-center docutils">
+<p class="sd-card-text">Adjust Synaptic Weights</p>
+</div>
 <div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-Adjust Synaptic Weights</div>
 <p class="sd-card-text">Update synaptic weights before a simulation.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
 </div>
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-header sd-d-flex-row sd-align-minor-center docutils">
+<p class="sd-card-text">Custom Synaptic Models</p>
+</div>
 <div class="sd-card-body docutils">
-<div class="sd-card-title sd-font-weight-bold docutils">
-Custom Synaptic Models</div>
 <p class="sd-card-text">Update and alter synaptic models, their parameters and/or instantiation.</p>
 </div>
 <a class="sd-stretched-link sd-hide-link-text reference external" href="builder_guide"><span>builder_guide</span></a></div>
